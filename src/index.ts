@@ -22,6 +22,17 @@ const remarkFlow: Plugin<[RemarkFlowOptions?], any> = function remarkFlow({
       return ast;
     }
 
+    // set href for link
+    const traverse = (node: HTMLElement) => {
+      if (node.tagName?.toLowerCase() === "a") {
+        const href = node.getAttribute("xlink:href");
+        node.setAttribute("href", href);
+      }
+      node.childNodes.forEach((n) => {
+        traverse(n as HTMLElement);
+      });
+    };
+
     const results = instances.map((ins) => {
       const code = ins[0];
 
@@ -75,6 +86,7 @@ const remarkFlow: Plugin<[RemarkFlowOptions?], any> = function remarkFlow({
       }
       diagram.drawSVG(div, drawOptions);
       div.innerHTML = `<pre><code class="language-flow">${div.innerHTML}</code></pre>`;
+      traverse(div);
       div.remove();
       return div.innerHTML;
     });
